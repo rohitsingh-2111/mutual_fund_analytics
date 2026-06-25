@@ -87,3 +87,47 @@ def explore_master_and_validate():
 if __name__ == "__main__":
     ingest_and_inspect_all()
     explore_master_and_validate()
+
+
+
+    # --- ADDED TO CLEAN THE INDIVIDUAL FUND FILES ---
+import os
+import pandas as pd
+
+raw_dir = "data/raw/"
+processed_dir = "data/processed/"
+
+# List of individual fund CSVs to process 
+fund_files = [
+    "01_fund_master.csv",
+    "03_aum_by_fund_h.csv",
+    "04_monthly_sip_infl.csv",
+    "05_category_inflow_outflow.csv",
+    "06_industry_folio_count.csv",
+    "Axis_Bluechip_nav.csv", 
+    "HDFC_Top_100_Direct_Growth_nav.csv", 
+    "ICICI_Bluechip_nav.csv", 
+    "Kotak_Bluechip_nav.csv", 
+    "Nippon_Large_Cap_nav.csv", 
+    "SBI_Bluechip_nav.csv"
+]
+
+# Ensure the processed directory exists
+os.makedirs(processed_dir, exist_ok=True)
+
+for file_name in fund_files:
+    raw_path = os.path.join(raw_dir, file_name)
+    
+    if os.path.exists(raw_path):
+        df = pd.read_csv(raw_path)
+        
+        # Basic cleaning: drop complete duplicates if any
+        df = df.drop_duplicates()
+        
+        # Save to processed folder matching your naming convention
+        output_name = file_name.replace(".csv", "_clean.csv") if not file_name.endswith("_clean.csv") else file_name
+        if "_clean" not in output_name:
+            output_name = output_name.replace(".csv", "_clean.csv")
+            
+        df.to_csv(os.path.join(processed_dir, output_name), index=False)
+        print(f"Processed and saved: {output_name}")
