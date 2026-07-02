@@ -1,0 +1,10 @@
+Performance Analytics Notebook Mapping
+====================================
+1. Import the modules: analytics_engine.py, config.py, and main.py.
+2. Create a notebook cell for environment setup and package imports.
+3. Create a notebook cell to instantiate Config and FundAnalyticsEngine.
+4. Create a notebook cell to load data and build the NAV panel.
+5. Create a notebook cell to compute daily returns and print validation summary.
+6. Create a notebook cell to calculate CAGR, risk metrics, alpha/beta, max drawdown, and scorecard.
+7. Create a notebook cell to save the three CSV/PNG deliverables and display the chart.
+8. Keep the workflow modular so each stage can be rerun independently.
