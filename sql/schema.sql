@@ -1,11 +1,16 @@
-CREATE TABLE dim_fund (
+PRAGMA foreign_keys = ON;
+
+-- Dimension: Funds
+CREATE TABLE IF NOT EXISTS dim_fund (
     amfi_code INTEGER PRIMARY KEY,
     fund_house TEXT,
     fund_name TEXT NOT NULL,
     category TEXT,
     risk_level TEXT
 );
-CREATE TABLE dim_date (
+
+-- Dimension: Calendar / Date
+CREATE TABLE IF NOT EXISTS dim_date (
     date_id TEXT PRIMARY KEY,
     day INTEGER,
     month INTEGER,
@@ -13,15 +18,19 @@ CREATE TABLE dim_date (
     quarter INTEGER,
     is_weekend INTEGER
 );
-CREATE TABLE fact_nav (
+
+-- Fact: NAV time series
+CREATE TABLE IF NOT EXISTS fact_nav (
     nav_id INTEGER PRIMARY KEY AUTOINCREMENT,
     amfi_code INTEGER,
-    date TEXT,
+    date TEXT NOT NULL,
     nav REAL NOT NULL,
     FOREIGN KEY (amfi_code) REFERENCES dim_fund(amfi_code),
     FOREIGN KEY (date) REFERENCES dim_date(date_id)
 );
-CREATE TABLE fact_transactions (
+
+-- Fact: Investor Transactions
+CREATE TABLE IF NOT EXISTS fact_transactions (
     transaction_id INTEGER PRIMARY KEY AUTOINCREMENT,
     investor_id TEXT,
     amfi_code INTEGER,
@@ -35,7 +44,19 @@ CREATE TABLE fact_transactions (
     FOREIGN KEY (amfi_code) REFERENCES dim_fund(amfi_code),
     FOREIGN KEY (transaction_date) REFERENCES dim_date(date_id)
 );
-CREATE TABLE fact_performance (
+
+-- Fact: AUM snapshots
+CREATE TABLE IF NOT EXISTS fact_aum (
+    aum_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    amfi_code INTEGER,
+    date TEXT,
+    total_aum REAL,
+    FOREIGN KEY (amfi_code) REFERENCES dim_fund(amfi_code),
+    FOREIGN KEY (date) REFERENCES dim_date(date_id)
+);
+
+-- Fact: Performance summary
+CREATE TABLE IF NOT EXISTS fact_performance (
     performance_id INTEGER PRIMARY KEY AUTOINCREMENT,
     amfi_code INTEGER,
     return_1y REAL,
@@ -45,11 +66,11 @@ CREATE TABLE fact_performance (
     is_anomaly INTEGER,
     FOREIGN KEY (amfi_code) REFERENCES dim_fund(amfi_code)
 );
-CREATE TABLE fact_aum (
-    aum_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    amfi_code INTEGER,
-    date TEXT,
-    total_aum REAL,
-    FOREIGN KEY (amfi_code) REFERENCES dim_fund(amfi_code),
-    FOREIGN KEY (date) REFERENCES dim_date(date_id)
-);
+
+-- Recommended indexes for common analytical patterns
+CREATE INDEX IF NOT EXISTS idx_fact_nav_amfi_date ON fact_nav(amfi_code, date);
+CREATE INDEX IF NOT EXISTS idx_fact_nav_date ON fact_nav(date);
+CREATE INDEX IF NOT EXISTS idx_fact_transactions_type ON fact_transactions(transaction_type);
+CREATE INDEX IF NOT EXISTS idx_fact_transactions_investor ON fact_transactions(investor_id);
+CREATE INDEX IF NOT EXISTS idx_fact_aum_date ON fact_aum(date);
+CREATE INDEX IF NOT EXISTS idx_dim_fund_category ON dim_fund(category);

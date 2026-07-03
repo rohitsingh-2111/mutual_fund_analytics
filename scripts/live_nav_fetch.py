@@ -1,10 +1,13 @@
-import os
+from pathlib import Path
 import json
 import requests
 import pandas as pd
 
 # Define the base API URL
 BASE_URL = "https://api.mfapi.in/mf/"
+ROOT_DIR = Path(__file__).resolve().parent.parent
+RAW_DIR = ROOT_DIR / "data" / "raw"
+RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 # Schemes to fetch as requested by the assignment
 schemes = {
@@ -32,7 +35,7 @@ def fetch_and_save_nav(scheme_code, scheme_name):
                 df['scheme_code'] = scheme_code
                 df['scheme_name'] = scheme_name
                 
-                csv_path = f"data/raw/{scheme_name}_nav.csv"
+                csv_path = RAW_DIR / f"{scheme_name}_nav.csv"
                 df.to_csv(csv_path, index=False)
                 print(f"-> Successfully saved CSV to {csv_path}")
                 return df
@@ -43,9 +46,6 @@ def fetch_and_save_nav(scheme_code, scheme_name):
     return None
 
 if __name__ == "__main__":
-    # Ensure raw data directory exists
-    os.makedirs("data/raw", exist_ok=True)
-    
     # Run the fetch loop for all specified mutual funds
     for code, name in schemes.items():
         fetch_and_save_nav(code, name)

@@ -1,5 +1,9 @@
+from pathlib import Path
 import sqlite3
 import pandas as pd
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = ROOT_DIR / "data" / "db" / "bluestock_mf.db"
 
 def run_recommender():
     print("=" * 52)
@@ -14,14 +18,17 @@ def run_recommender():
         risk_appetite = "Moderate"
         
     query = """
-    SELECT fund_name, category, risk_level 
-    FROM dim_fund 
+    SELECT fund_name, category, risk_level
+    FROM dim_fund
     WHERE risk_level = ?
     LIMIT 3;
     """
     
-    # Using a context manager handles connections cleanly like a human dev
-    with sqlite3.connect("bluestock_mf.db") as conn:
+    if not DB_PATH.exists():
+        print(f"Database not found at {DB_PATH}. Run the ETL pipeline first.")
+        return
+
+    with sqlite3.connect(DB_PATH) as conn:
         df_rec = pd.read_sql_query(query, conn, params=(risk_appetite,))
     
     print(f"\n--- Top Recommended Funds for '{risk_appetite}' Risk Profile ---")

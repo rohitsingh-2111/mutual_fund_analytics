@@ -2,17 +2,20 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import create_engine, text
 
-BASE_DIR = Path(__file__).resolve().parent
-RAW_DIR = BASE_DIR / "data" / "raw"
-PROCESSED_DIR = BASE_DIR / "data" / "processed"
-DB_PATH = BASE_DIR / "bluestock_mf.db"
-SCHEMA_PATH = BASE_DIR / "schema.sql"
+ROOT_DIR = Path(__file__).resolve().parent.parent
+RAW_DIR = ROOT_DIR / "data" / "raw"
+PROCESSED_DIR = ROOT_DIR / "data" / "processed"
+DB_DIR = ROOT_DIR / "data" / "db"
+DB_PATH = DB_DIR / "bluestock_mf.db"
+SCHEMA_PATH = ROOT_DIR / "sql" / "schema.sql"
 
+DB_DIR.mkdir(parents=True, exist_ok=True)
 engine = create_engine(f"sqlite:///{DB_PATH}")
 
 
 def ensure_dirs() -> None:
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    DB_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def load_schema(conn) -> None:
